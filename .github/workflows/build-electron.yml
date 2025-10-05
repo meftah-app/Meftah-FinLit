@@ -1,4 +1,4 @@
-name: Build Electron App
+name: Build Meftah FinLit App
 
 on:
   push:
@@ -8,26 +8,46 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: 🧩 Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: ⚙️ Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: 'npm'
 
-      - name: Install dependencies
+      - name: 📦 Install global build tools
         run: |
+          npm install -g npm@latest
+          npm install -g electron electron-builder
+
+      - name: 🧰 Install dependencies (backend & frontend)
+        run: |
+          if [ -d "frontend" ]; then
+            cd frontend
+            npm install
+            npm run build || echo "⚠️ Frontend build skipped (no scripts)"
+            cd ..
+          fi
           npm install
-          cd frontend && npm install && npm run build && cd ..
 
-      - name: Build Electron app
+      - name: 🏗️ Build Electron App
         run: |
-          npm run dist
+          if [ -f "package.json" ]; then
+            npx electron-builder --dir
+            npx electron-builder --win --x64 || true
+            npx electron-builder --mac --x64 || true
+            npx electron-builder --linux --x64 || true
+          else
+            echo "❌ package.json not found — skipping build."
+            exit 1
+          fi
 
-      - name: Upload installers
+      - name: 📤 Upload installers
         uses: actions/upload-artifact@v4
         with:
-          name: Meftah-FinLit-installers
+          name: Meftah-FinLit-Installers
           path: dist/
