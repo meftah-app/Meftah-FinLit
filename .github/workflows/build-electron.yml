@@ -1,4 +1,4 @@
-name: Build Meftah FinLit App (Auto-Fix)
+name: Build & Release Meftah FinLit App
 
 on:
   push:
@@ -21,20 +21,15 @@ jobs:
       - name: 📦 Install dependencies (auto-fix)
         run: |
           echo "🔍 Checking for package.json..."
-          if [ ! -f "package.json" ]; then
-            echo "⚠️ No package.json in root. Searching..."
-            FILE=$(find . -name "package.json" | head -n 1)
-            if [ -z "$FILE" ]; then
-              echo "❌ No package.json found. Skipping install."
-              exit 0
-            else
-              DIR=$(dirname "$FILE")
-              cd "$DIR"
-            fi
+          FILE=$(find . -name "package.json" | head -n 1)
+          if [ -z "$FILE" ]; then
+            echo "❌ No package.json found. Skipping."
+            exit 0
           fi
-          echo "📦 Installing dependencies..."
+          DIR=$(dirname "$FILE")
+          cd "$DIR"
           npm install --no-audit --no-fund || true
-          echo "✅ Dependencies installed successfully."
+          cd -
 
       - name: 🧰 Install electron build tools
         run: |
@@ -43,11 +38,16 @@ jobs:
       - name: 🏗️ Build Electron App
         run: |
           echo "⚙️ Building Meftah FinLit..."
-          npx electron-builder --win --mac --linux --config electron-builder.json || echo "⚠️ Build step skipped or failed gracefully."
+          npx electron-builder --win --mac --linux || echo "⚠️ Build step skipped or failed gracefully."
+          echo "🔍 Listing possible output folders:"
+          find . -type d -name "dist" -o -name "build" -o -name "release" -maxdepth 3 || true
 
-      - name: 📤 Upload Installers
+      - name: 📤 Upload All Possible Outputs
         uses: actions/upload-artifact@v4
         with:
           name: Meftah-FinLit-Installers
-          path: dist/
-          if-no-files-found: ignore
+          path: |
+            **/dist/**
+            **/build/**
+            **/release/**
+          if-no-files-found: warn
