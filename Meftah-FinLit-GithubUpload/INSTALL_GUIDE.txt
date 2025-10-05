@@ -1,0 +1,18 @@
+Meftah FinLit - Quick Install Guide (for end users)
+
+1) After downloading the installer for your OS:
+   - Windows: run Meftah-FinLit-Setup.exe and follow installer steps.
+   - macOS: open the DMG and drag the app to Applications.
+   - Linux: make AppImage executable (chmod +x) and run it.
+
+2) First run will show a registration screen. Users should sign up with email and password.
+   Teacher accounts can be created either by signup or via seed accounts (for testing).
+
+Test accounts (if seed applied):
+- teacher@meftah.test / teacherpass
+- ali@student.test / studentpass
+- sara@student.test / studentpass
+
+3) For administrators: after login, go to "Users" and "Settings" to manage institute info and users.
+
+If you want me to upload this package into your repo directly, I need a GitHub access token (not recommended). Instead, please upload the ZIP to your repo as described above and I'll monitor the Actions run and help fetch installers.
