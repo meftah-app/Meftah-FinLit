@@ -24,7 +24,7 @@ jobs:
           npm install -g npm@latest
           npm install -g electron electron-builder
 
-      - name: 🧰 Install dependencies (backend & frontend)
+      - name: 🧰 Install dependencies
         run: |
           if [ -d "frontend" ]; then
             cd frontend
@@ -34,19 +34,46 @@ jobs:
           fi
           npm install
 
-      - name: 🏗️ Build Electron App
+      - name: 🏗️ Configure electron-builder
         run: |
-          if [ -f "package.json" ]; then
-            npx electron-builder --dir
-            npx electron-builder --win --x64 || true
-            npx electron-builder --mac --x64 || true
-            npx electron-builder --linux --x64 || true
-          else
-            echo "❌ package.json not found — skipping build."
-            exit 1
-          fi
+          echo '{
+            "appId": "com.meftah.finlit",
+            "productName": "مفتاح | آموزش سواد مالی",
+            "directories": {
+              "output": "dist"
+            },
+            "files": [
+              "**/*",
+              "!node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+              "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}"
+            ],
+            "win": {
+              "target": ["nsis"],
+              "icon": "مفتاح - بدون زمینه.png",
+              "publisherName": "Meftah Education"
+            },
+            "nsis": {
+              "oneClick": false,
+              "allowToChangeInstallationDirectory": true,
+              "createDesktopShortcut": true,
+              "createStartMenuShortcut": true,
+              "shortcutName": "مفتاح"
+            },
+            "mac": {
+              "target": ["dmg"],
+              "icon": "مفتاح - بدون زمینه.png"
+            },
+            "linux": {
+              "target": ["AppImage"],
+              "icon": "مفتاح - بدون زمینه.png"
+            }
+          }' > electron-builder.json
 
-      - name: 📤 Upload installers
+      - name: 🚀 Build Electron App
+        run: |
+          npx electron-builder --config electron-builder.json || true
+
+      - name: 📤 Upload Installers
         uses: actions/upload-artifact@v4
         with:
           name: Meftah-FinLit-Installers
