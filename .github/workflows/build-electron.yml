@@ -1,8 +1,9 @@
-name: Build & Release Meftah FinLit App
+name: Build Meftah FinLit App
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -10,44 +11,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧩 Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: ⚙️ Setup Node.js
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: 📦 Install dependencies (auto-fix)
+      - name: Install dependencies
         run: |
-          echo "🔍 Checking for package.json..."
-          FILE=$(find . -name "package.json" | head -n 1)
-          if [ -z "$FILE" ]; then
-            echo "❌ No package.json found. Skipping."
-            exit 0
-          fi
-          DIR=$(dirname "$FILE")
-          cd "$DIR"
-          npm install --no-audit --no-fund || true
-          cd -
+          npm install
+          npm install -g electron-builder
 
-      - name: 🧰 Install electron build tools
+      - name: Build Electron App
         run: |
-          npm install -g electron electron-builder || true
+          npx electron-builder --win --mac --linux
 
-      - name: 🏗️ Build Electron App
-        run: |
-          echo "⚙️ Building Meftah FinLit..."
-          npx electron-builder --win --mac --linux || echo "⚠️ Build step skipped or failed gracefully."
-          echo "🔍 Listing possible output folders:"
-          find . -type d -name "dist" -o -name "build" -o -name "release" -maxdepth 3 || true
-
-      - name: 📤 Upload All Possible Outputs
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Meftah-FinLit-Installers
+          name: Meftah-FinLit-App
           path: |
-            **/dist/**
-            **/build/**
-            **/release/**
-          if-no-files-found: warn
+            dist/**/*.exe
+            dist/**/*.dmg
+            dist/**/*.AppImage
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            dist/**/*.exe
+            dist/**/*.dmg
+            dist/**/*.AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
