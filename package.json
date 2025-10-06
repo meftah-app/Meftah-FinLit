@@ -1,0 +1,44 @@
+{
+  "name": "meftah-finlit",
+  "version": "1.0.0",
+  "description": "نرم‌افزار آموزش سواد مالی برای نوجوانان، موسسه تربیت اقتصادی مفتاح",
+  "author": "Meftah Economic Institute",
+  "license": "MIT",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "ir.meftah.finlit",
+    "productName": "Meftah FinLit",
+    "directories": {
+      "buildResources": "assets",
+      "output": "dist"
+    },
+    "files": [
+      "**/*"
+    ],
+    "extraResources": [
+      "assets/"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/"
+    }
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "dependencies": {}
+}
